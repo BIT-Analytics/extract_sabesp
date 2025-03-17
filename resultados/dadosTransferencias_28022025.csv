@@ -1,0 +1,30 @@
+"","Abreviatura","Unidade","Valor","LocalMedicaoId","Dia","SistemaId","ComponenteId","Nome","Data","Maximo","Minimo"
+"1","Q T7","m3/s",0,7,28,0,9,"Q Túnel 7","2025-02-28T00:00:00",NA,NA
+"2","Q T6","m3/s",23.27,9,28,0,8,"Q Túnel 6","2025-02-28T00:00:00",NA,NA
+"3","Q T5","m3/s",27.47,10,28,0,7,"Q Túnel 5","2025-02-28T00:00:00",NA,NA
+"4","Q ESI","m3/s",31.5,11,28,0,36,"Q Elev. Santa Inês","2025-02-28T00:00:00",NA,NA
+"5","F-25bT","m3/s",16.23,46,28,0,56,"F-25bT","2025-02-28T00:00:00",NA,NA
+"6","Q PS-SC","m3/s",5.468,47,28,0,48,"Q Transf Paraíba do Sul - Atibainha (PS-SC)","2025-02-28T00:00:00",NA,NA
+"7","Q SC-PS","m3/s",0,48,28,0,49,"Q Transf Atibainha - Paraíba do Sul (SC-PS)","2025-02-28T00:00:00",NA,NA
+"8","DAE-J","m3/s",0,50,28,0,NA,"DAE Jundiaí","2025-02-28T00:00:00",NA,NA
+"9","Q EEAB Mairiporã","m3/s",0,51,28,0,51,"Q EEAB Mairiporã","2025-02-28T00:00:00",NA,NA
+"10","Q Jund-Taiaç","m3/s",13.28,2,28,1,42,"QTransf Jundiai Taiaçupepa","2025-02-28T00:00:00",NA,NA
+"11","Q EEAB Bir","m3/s",7.564,3,28,1,39,"Q EEAB Biritiba","2025-02-28T00:00:00",NA,NA
+"12","Q Bir.DqBir","m3/s",1.572,38,28,1,32,"Q Biritiba - Dique Biritiba","2025-02-28T00:00:00",NA,NA
+"13","Q AT7","m3/s",2.67,41,28,1,NA,"Q AT7","2025-02-28T00:00:00",NA,NA
+"14","Q RG-Taiaçupeba","m3/s",0,43,28,1,41,"Q Transf Rio Grande - Taiaçupeba","2025-02-28T00:00:00",NA,NA
+"15","Q Transf Guaió","m3/s",0,44,28,1,40,"Q Transf Guaió","2025-02-28T00:00:00",NA,NA
+"16","Q Dique-Jundiaí","m3/s",9.136,52,28,1,NA,"Q Dique Biritiba - Jundiaí","2025-02-28T00:00:00",NA,NA
+"17","AT-9","m3/s",7.02,53,28,1,57,"AT-9","2025-02-28T00:00:00",NA,NA
+"18","AT-18","m3/s",10.31,54,28,1,58,"AT-18","2025-02-28T00:00:00",NA,NA
+"19","AT-27","m3/s",0.36,55,28,1,59,"AT-27","2025-02-28T00:00:00",NA,NA
+"20","Q Rev.Capiv.","m3/s",0,13,28,2,37,"Q Rever Capivari","2025-02-28T00:00:00",NA,NA
+"21","Q Rev.Taquac.","m3/s",0,14,28,2,38,"Q Rever Taquacetuba","2025-02-28T00:00:00",NA,NA
+"22","Q RP-RG","m3/s",0,42,28,4,43,"Q Transf Rio Pequeno - Rio Grande","2025-02-28T00:00:00",NA,NA
+"23","Q Guarat.","m3/s",0.257,16,28,5,45,"Q Revert Guaratuba","2025-02-28T00:00:00",NA,NA
+"24","Q PPreto","m3/s",2.124,17,28,5,47,"Q RMSP Ppreto","2025-02-28T00:00:00",NA,NA
+"25","Q Km76","m3/s",1.451,18,28,5,46,"Q RMSP km76","2025-02-28T00:00:00",NA,NA
+"26","QJus km76","m3/s",0.28,19,28,5,NA,"QJus km76","2025-02-28T00:00:00",NA,NA
+"27","Q RioClaro","m3/s",2.56,20,28,5,NA,"Q Rio Claro","2025-02-28T00:00:00",NA,NA
+"28","QJus EEAB Guaratuba","m3/s",0.94,39,28,5,NA,"QJus EEAB Guaratuba","2025-02-28T00:00:00",NA,NA
+"29","QJus PPreto","m3/s",0.35,57,28,5,60,"Q Jusante Poço Preto","2025-02-28T00:00:00",NA,NA
