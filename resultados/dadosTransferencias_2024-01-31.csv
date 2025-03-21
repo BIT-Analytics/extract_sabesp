@@ -1,0 +1,26 @@
+Abreviatura;Unidade;Valor;LocalMedicaoId;Dia;SistemaId;ComponenteId;Nome;Data;Maximo;Minimo
+Q T7;m3/s;0,000;7;31;0;9;Q Túnel 7;2024-01-31T00:00:00;NA;NA
+Q T6;m3/s;10,338;9;31;0;8;Q Túnel 6;2024-01-31T00:00:00;NA;NA
+Q T5;m3/s;29,707;10;31;0;7;Q Túnel 5;2024-01-31T00:00:00;NA;NA
+Q ESI;m3/s;29,753;11;31;0;36;Q Elev. Santa Inês;2024-01-31T00:00:00;NA;NA
+F-25bT;m3/s;25,631;46;31;0;56;F-25bT;2024-01-31T00:00:00;NA;NA
+Q PS-SC;m3/s;0,000;47;31;0;48;Q Transf Paraíba do Sul - Atibainha (PS-SC);2024-01-31T00:00:00;NA;NA
+Q SC-PS;m3/s;0,000;48;31;0;49;Q Transf Atibainha - Paraíba do Sul (SC-PS);2024-01-31T00:00:00;NA;NA
+DAE-J;m3/s;0,000;50;31;0;NA;DAE Jundiaí;2024-01-31T00:00:00;NA;NA
+Q EEAB Mairiporã;m3/s;0,000;51;31;0;51;Q EEAB Mairiporã;2024-01-31T00:00:00;NA;NA
+Q Jund-Taiaç;m3/s;8,320;2;31;1;42;QTransf Jundiai Taiaçupepa;2024-01-31T00:00:00;NA;NA
+Q EEAB Bir;m3/s;5,797;3;31;1;39;Q EEAB Biritiba;2024-01-31T00:00:00;NA;NA
+Q Bir.DqBir;m3/s;3,670;38;31;1;32;Q Biritiba - Dique Biritiba;2024-01-31T00:00:00;NA;NA
+Q AT7;m3/s;2,560;41;31;1;NA;Q AT7;2024-01-31T00:00:00;NA;NA
+Q RG-Taiaçupeba;m3/s;0,000;43;31;1;41;Q Transf Rio Grande - Taiaçupeba;2024-01-31T00:00:00;NA;NA
+Q Transf Guaió;m3/s;0,000;44;31;1;40;Q Transf Guaió;2024-01-31T00:00:00;NA;NA
+Q Dique-Jundiaí;m3/s;8,780;52;31;1;NA;Q Dique Biritiba - Jundiaí;2024-01-31T00:00:00;NA;NA
+Q Rev.Capiv.;m3/s;0,000;13;31;2;37;Q Rever Capivari;2024-01-31T00:00:00;NA;NA
+Q Rev.Taquac.;m3/s;0,000;14;31;2;38;Q Rever Taquacetuba;2024-01-31T00:00:00;NA;NA
+Q RP-RG;m3/s;0,000;42;31;4;43;Q Transf Rio Pequeno - Rio Grande;2024-01-31T00:00:00;NA;NA
+Q Guarat.;m3/s;0,494;16;31;5;45;Q Revert Guaratuba;2024-01-31T00:00:00;NA;NA
+Q PPreto;m3/s;2,214;17;31;5;47;Q RMSP Ppreto;2024-01-31T00:00:00;NA;NA
+Q Km76;m3/s;1,449;18;31;5;46;Q RMSP km76;2024-01-31T00:00:00;NA;NA
+QJus km76;m3/s;11,020;19;31;5;NA;QJus km76;2024-01-31T00:00:00;NA;NA
+Q RioClaro;m3/s;8,420;20;31;5;NA;Q Rio Claro;2024-01-31T00:00:00;NA;NA
+QJus EEAB Guaratuba;m3/s;2,080;39;31;5;NA;QJus EEAB Guaratuba;2024-01-31T00:00:00;NA;NA
