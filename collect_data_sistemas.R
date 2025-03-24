@@ -8,7 +8,7 @@ library(tidyverse)
 options(timeout = 600)
 
 # Gerar datas
-datas <- seq(as.Date("2013/01/01"), as.Date("2025/03/01"), 1) |> 
+datas <- seq(as.Date("2010/01/01"), as.Date("2025/03/01"), 1) |> 
   as_tibble() |> 
   mutate(year = year(value), 
          month = month(value)) |> 
@@ -122,5 +122,9 @@ aux_selecionado <- aux[, c("Data",
                            "Chuva mensal/média histórica", 
                            "Vazão captada da ETA")]
 
+aux_selecionado <- aux_selecionado %>%
+  mutate(across(where(is.numeric), ~ round(., 2)))
 
-write_csv(aux_selecionado, "resultados/dados_mananciais_ajustados.csv")
+aux_selecionado[is.na(aux_selecionado)] <- "-"
+
+write_csv2(aux_selecionado, "resultados/dados_mananciais_ajustados.csv")
