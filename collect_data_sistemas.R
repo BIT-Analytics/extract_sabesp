@@ -94,7 +94,6 @@ tbl <- dados_coletados |>
 # Salvar como CSV
 write_csv2(tbl, "dados_mananciais_completo.csv")
 
-
 # Ajustando os dados
 
 aux <- tbl |> 
