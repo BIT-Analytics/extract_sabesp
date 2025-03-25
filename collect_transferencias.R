@@ -20,38 +20,37 @@ datas <- seq(as.Date("2010/01/01"), as.Date("2025/03/01"), 1) |>
 
 # Função para buscar dados e armazenar em data.frame
 # Função para buscar dados e armazenar em data.frame
+# Criar função resiliente com insistently()
+safe_fromJSON <- insistently(fromJSON)
+
 dados_coletados <- purrr::map_dfr(datas, function(data) {
   
   # Definir a URL do JSON
-  url <- glue("https://mananciais-sabesp.fcth.br/api/Mananciais/Boletins/Mananciais/{data}")
+  url <- glue::glue("https://mananciais-sabesp.fcth.br/api/Mananciais/Boletins/Mananciais/{data}")
   
-  # Ler e converter o JSON
-  dados <- fromJSON(url)
+  # Ler e converter o JSON com tentativa automática de repetição
+  dados <- safe_fromJSON(url)
   
   # Extrair dados dos sistemas
-  
   out <- dados[["ReturnObj"]][["dadosTransferencias"]] |> 
-    filter(Abreviatura %in% c("Q PS-SC", "Q Rev.Capiv.", 
-                              "Q Rev.Taquac.", "Q RP-RG", 
-                              "Q Guarat.", "Q EEAB Bir", "Q RG-Taiaçupeba", 
-                              "Q Transf Guaió")) |> 
-    select(Abreviatura, Valor, SistemaId, ) |> 
-    rename(id_sistema = SistemaId)
+    dplyr::filter(Abreviatura %in% c("Q PS-SC", "Q Rev.Capiv.", 
+                                     "Q Rev.Taquac.", "Q RP-RG", 
+                                     "Q Guarat.", "Q EEAB Bir", "Q RG-Taiaçupeba", 
+                                     "Q Transf Guaió")) |> 
+    dplyr::select(Abreviatura, Valor, SistemaId) |> 
+    dplyr::rename(id_sistema = SistemaId) |> 
+    mutate(data = data)
   
   # Extrair dados da ETA
-  dados_transferencia <- data.frame(out) |> 
-    mutate(Sistema = case_when(
-      id_sistema == 0 ~ "Cantareira", 
-      id_sistema == 1 ~ "Alto Tietê", 
-      id_sistema == 2 ~ "Guarapiranga", 
-      id_sistema == 4 ~ "Rio Grande", 
-      id_sistema == 5 ~ "Rio Claro"
-    ))
+  dados_transferencia <- dplyr::mutate(out, Sistema = dplyr::case_when(
+    id_sistema == 0 ~ "Cantareira", 
+    id_sistema == 1 ~ "Alto Tietê", 
+    id_sistema == 2 ~ "Guarapiranga", 
+    id_sistema == 4 ~ "Rio Grande", 
+    id_sistema == 5 ~ "Rio Claro"
+  ))
   
   return(dados_transferencia)
 })
 
-
-
-
-
+write_csv(dados_coletados, "resultados/transferencias.csv")
