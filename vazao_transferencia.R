@@ -12,13 +12,25 @@ transferencias <- read_csv("resultados/transferencias.csv") |>
   rename(Data = data)
 
 
+
 ### Juntando: 
 
 df_final <- sistemas |> 
   left_join(transferencias) |> 
   rename(`Transferência` = Abreviatura, 
          `Vazão de transferência` = Valor) |> 
-  select(-id_sistema) 
+  select(-id_sistema) |> 
+  rename(
+    `Vazão natural mensal (m³/s)` = `Vazão natural Mensal`,
+    `Vazão Média Histórica Mensal (m³/s)` = `Vazão Média Histórica Mensal`,
+    `Vazão natural Mensal / Média histórica (%)` = `Vazão natural Mensal / Média histórica`,
+    `Pluviometria Média Histórica Mensal (mm)` = `Pl. Média Histórica Mensal`,
+    `Pluviometria mensal/média histórica (%)` = `Chuva mensal/média histórica`
+  ) |> 
+  mutate(across(
+    -c(Data, `Nome do sistema`, `Transferência`),
+    \(x) str_replace(x,'\\.',',')
+  ))
 
 ###### GERANDO OS ARQUIVOS E SALVANDO XLSX:
 ##### Cantareira: 
@@ -26,8 +38,7 @@ df_final <- sistemas |>
 df_cantareira <- df_final |> 
   filter(`Nome do sistema` == "Cantareira") |> 
   mutate(across(11, ~ifelse(is.na(.), "", .))) |> 
-  mutate(across(12, ~ifelse(is.na(.), 0, .))) |> 
-  mutate(across(3:10, ~as.numeric(.)))
+  mutate(across(12, ~ifelse(is.na(.), 0, .)))
   
 
 writexl::write_xlsx(df_cantareira, 
@@ -39,8 +50,7 @@ df_altotiete <- df_final |>
   filter(`Nome do sistema` == "Alto Tietê") |> 
   pivot_wider(names_from = `Transferência`, 
               values_from = `Vazão de transferência`) |> 
-  mutate(across(11:13, ~ifelse(is.na(.), 0, .))) |> 
-  mutate(across(3:10, ~as.numeric(.)))
+  mutate(across(11:13, ~ifelse(is.na(.), 0, .))) 
 
 writexl::write_xlsx(df_altotiete, 
                     "resultados/vazao_transferencias/vazao_transferencia_alto_tiete.xlsx")
@@ -52,8 +62,7 @@ df_guarapiranga <- df_final |>
   filter(`Nome do sistema` == "Guarapiranga") |> 
   pivot_wider(names_from = `Transferência`, 
               values_from = `Vazão de transferência`) |> 
-  mutate(across(11:12, ~ifelse(is.na(.), 0, .))) |> 
-  mutate(across(3:10, ~as.numeric(.)))
+  mutate(across(11:12, ~ifelse(is.na(.), 0, .)))
 
 writexl::write_xlsx(df_guarapiranga, 
                     "resultados/vazao_transferencias/vazao_transferencia_guarapiranga.xlsx")
@@ -65,10 +74,77 @@ writexl::write_xlsx(df_guarapiranga,
 df_riogrande <- df_final |> 
   filter(`Nome do sistema` == "Rio Grande") |> 
   mutate(across(11, ~ifelse(is.na(.), "", .))) |> 
-  mutate(across(12, ~ifelse(is.na(.), 0, .))) |> 
-  mutate(across(3:10, ~as.numeric(.)))
+  mutate(across(12, ~ifelse(is.na(.), 0, .)))
 
-writexl::write_xlsx(df_guarapiranga, 
+writexl::write_xlsx(df_riogrande, 
                     "resultados/vazao_transferencias/vazao_transferencia_rio_grande.xlsx")
 
+
+#### RIO CLARO
+
+df_rioclaro <- df_final |> 
+  filter(`Nome do sistema` == "Rio Claro") |> 
+  mutate(across(11, ~ifelse(is.na(.), "", .))) |> 
+  mutate(across(12, ~ifelse(is.na(.), 0, .)))
+
+writexl::write_xlsx(df_rioclaro, 
+                    "resultados/vazao_transferencias/vazao_transferencia_rio_claro.xlsx")
+
+
+#### Alto cotia: 
+
+df_alto_cotia <- df_final |> 
+  filter(`Nome do sistema` == "Alto Cotia") |> 
+  mutate(across(11, ~ifelse(is.na(.), "", .))) |> 
+  mutate(across(12, ~ifelse(is.na(.), 0, .))) |> 
+  select(-c(11,12))
+
+writexl::write_xlsx(df_alto_cotia, 
+                    "resultados/vazao_transferencias/vazao_alto_cotia.xlsx")
+
+
+
+### Sao lourenco
+
+df_sao_lourenco <- df_final |> 
+  filter(`Nome do sistema` == "São Lourenço") |> 
+  mutate(across(11, ~ifelse(is.na(.), "", .))) |> 
+  select(-c(11,12))
+
+
+writexl::write_xlsx(df_sao_lourenco, 
+                    "resultados/vazao_transferencias/vazao_sao_lourenco.xlsx")
+
+#### SIM
+
+df_sim <- df_final |> 
+  filter(`Nome do sistema` == "SIM") |> 
+  mutate(across(11, ~ifelse(is.na(.), "", .))) |> 
+  select(c(1:6))
+
+writexl::write_xlsx(df_sim, 
+                    "resultados/vazao_transferencias/vazao_SIM.xlsx")
+
+
+### Ribeirao
+
+df_ribeirao <- df_final |> 
+  filter(`Nome do sistema` == "Ribeirão da Estiva") |> 
+  mutate(across(11, ~ifelse(is.na(.), "", .))) |> 
+  select(-c(11,12))
+
+
+writexl::write_xlsx(df_ribeirao, 
+                    "resultados/vazao_transferencias/vazao_ribeirao.xlsx")
+
+
+### Baixo Cotia
+
+df_baixo_cotia <- df_final |> 
+  filter(`Nome do sistema` == "Baixo Cotia") |> 
+  mutate(across(11, ~ifelse(is.na(.), "", .))) |> 
+  select(-c(11,12))
+
+writexl::write_xlsx(df_baixo_cotia, 
+                    "resultados/vazao_transferencias/vazao_baixo_cotia.xlsx")
 
