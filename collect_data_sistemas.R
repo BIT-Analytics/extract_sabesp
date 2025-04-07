@@ -8,7 +8,7 @@ library(tidyverse)
 options(timeout = 600)
 
 # Gerar datas
-datas <- seq(as.Date("2010/01/01"), as.Date("2025/03/01"), 1) |> 
+datas <- seq(as.Date("2010/01/01"), as.Date("2025/03/31"), 1) |> 
   as_tibble() |> 
   mutate(year = year(value), 
          month = month(value)) |> 
@@ -16,6 +16,7 @@ datas <- seq(as.Date("2010/01/01"), as.Date("2025/03/01"), 1) |>
   filter(value == max(value)) |> 
   select(value) |> 
   pull()
+
 
 
 # Função para buscar dados e armazenar em data.frame
@@ -77,14 +78,22 @@ dados_coletados <- purrr::map_dfr(datas, function(data) {
     )) |> 
     group_by(data, Sistema) |> 
     summarise(vazao_captada = sum(vazao_captada)) # resolve cantareira velho
+    
+    vazao_eta_sim <- dados_eta |> 
+      filter(Sistema != "Cantareira Velho") |> 
+      ungroup() |> 
+      summarise(sum(vazao_captada)) |> 
+      pull()
   
   # Realizar o full_join entre os dois bancos de dados (usando a coluna id_sistema)
-  dados_completos <- full_join(dados_sistemas, dados_eta, by = c("Sistema", "data"))
+  dados_completos <- full_join(dados_sistemas, dados_eta, by = c("Sistema", "data")) |> 
+    mutate(vazao_captada = ifelse(Sistema == "SIM", 
+                                  vazao_eta_sim, vazao_captada))
   
   return(dados_completos)
 })
 
-### Ajustando: 
+  ### Ajustando: 
 
 tbl <- dados_coletados |> 
   mutate(vazao_media_eta = 
@@ -127,3 +136,15 @@ aux_selecionado <- aux_selecionado %>%
 aux_selecionado[is.na(aux_selecionado)] <- "-"
 
 write_csv2(aux_selecionado, "resultados/dados_mananciais_ajustados.csv")
+
+
+#### Lendo
+
+df <- read_csv2("resultados/dados_mananciais_ajustados.csv") |> 
+  mutate(across(
+    -c(Data, `Nome do sistema`),
+    \(x) str_replace(x,'\\.',',')
+  ))
+
+
+writexl::write_xlsx(df, "resultados/dados_mananciais_adequados.xlsx")

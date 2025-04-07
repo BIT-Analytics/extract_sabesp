@@ -25,7 +25,9 @@ df_final <- sistemas |>
     `Vazão Média Histórica Mensal (m³/s)` = `Vazão Média Histórica Mensal`,
     `Vazão natural Mensal / Média histórica (%)` = `Vazão natural Mensal / Média histórica`,
     `Pluviometria Média Histórica Mensal (mm)` = `Pl. Média Histórica Mensal`,
-    `Pluviometria mensal/média histórica (%)` = `Chuva mensal/média histórica`
+    `Pluviometria mensal/média histórica (%)` = `Chuva mensal/média histórica`, 
+    `Vazão captada da ETA (m³/s)` = `Vazão captada da ETA`, 
+    `Vazão de transferência (m³/s)` = `Vazão de transferência`
   ) |> 
   mutate(across(
     -c(Data, `Nome do sistema`, `Transferência`),
@@ -37,8 +39,12 @@ df_final <- sistemas |>
 
 df_cantareira <- df_final |> 
   filter(`Nome do sistema` == "Cantareira") |> 
-  mutate(across(11, ~ifelse(is.na(.), "", .))) |> 
-  mutate(across(12, ~ifelse(is.na(.), 0, .)))
+  mutate(across(11, ~ifelse(is.na(.), " ", .))) |> 
+  mutate(across(12, ~ifelse(is.na(.), 0, .))) |> 
+  pivot_wider(names_from = `Transferência`, 
+              values_from = `Vazão de transferência (m³/s)`, 
+              values_fill = "0") |> 
+  select(-c(11))
   
 
 writexl::write_xlsx(df_cantareira, 
@@ -49,8 +55,9 @@ writexl::write_xlsx(df_cantareira,
 df_altotiete <- df_final |> 
   filter(`Nome do sistema` == "Alto Tietê") |> 
   pivot_wider(names_from = `Transferência`, 
-              values_from = `Vazão de transferência`) |> 
-  mutate(across(11:13, ~ifelse(is.na(.), 0, .))) 
+              values_from = `Vazão de transferência (m³/s)`, 
+              values_fill = "0") |> 
+  mutate(across(11:13, ~ifelse(is.na(.), 0, .)))
 
 writexl::write_xlsx(df_altotiete, 
                     "resultados/vazao_transferencias/vazao_transferencia_alto_tiete.xlsx")
@@ -61,12 +68,12 @@ writexl::write_xlsx(df_altotiete,
 df_guarapiranga <- df_final |> 
   filter(`Nome do sistema` == "Guarapiranga") |> 
   pivot_wider(names_from = `Transferência`, 
-              values_from = `Vazão de transferência`) |> 
+              values_from = `Vazão de transferência (m³/s)`, 
+              values_fill = "0") |> 
   mutate(across(11:12, ~ifelse(is.na(.), 0, .)))
 
 writexl::write_xlsx(df_guarapiranga, 
                     "resultados/vazao_transferencias/vazao_transferencia_guarapiranga.xlsx")
-
 
 
 #### Rio Grande
@@ -120,7 +127,7 @@ writexl::write_xlsx(df_sao_lourenco,
 df_sim <- df_final |> 
   filter(`Nome do sistema` == "SIM") |> 
   mutate(across(11, ~ifelse(is.na(.), "", .))) |> 
-  select(c(1:6))
+  select(c(1:6,10))
 
 writexl::write_xlsx(df_sim, 
                     "resultados/vazao_transferencias/vazao_SIM.xlsx")
