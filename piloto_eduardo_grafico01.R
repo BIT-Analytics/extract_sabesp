@@ -81,3 +81,5 @@ lista_graficos <- map(vars, gera_grafico)
 wrap_plots(lista_graficos, ncol = 2) +
   plot_annotation(title = "Comparação mensal por variável",
                   subtitle = "Com destaque para os 5 anos mais recentes")
+  
+
