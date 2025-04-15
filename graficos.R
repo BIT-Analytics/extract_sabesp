@@ -126,6 +126,13 @@ labels_finais <- df_sel3 |>
 
 
 
+# cores plot
+cores_anos <- df_sel3 |>
+  dplyr::distinct(year, colourz) |>
+  dplyr::arrange(year) |>
+  dplyr::mutate(year = ifelse(colourz == "#d9d9d9", "Anterior", year)) |> 
+  deframe()
+
 # plot
 
 plot1 <- df_sel3 |> 
@@ -139,23 +146,51 @@ plot1 <- df_sel3 |>
             aes(y = valores, label = year),
             size = 3, color = "black", hjust = 0) +
   facet_wrap(~var, ncol = 2, scales = "free_y") +
-  scale_color_identity() +
+  scale_color_identity(
+    guide = "legend",
+    labels = names(cores_anos),
+    breaks = cores_anos
+  ) +
+  guides(color = guide_legend(nrow = 1)) + 
   scale_alpha_identity() +
   scale_size_identity() +
   scale_x_continuous(breaks = 1:12, limits = c(1, 13)) +
-  labs(x = "Meses", color = "Ano", y = "Valores") +
+  labs(x = "Meses", color = "Ano", y = "Valores", 
+       caption = "Volume Diária (%), Vazão natural mensal (m³/s), Pluviometria Mensal (mm) e Vazão captada da ETA (m³/s) com valores normalizados (zscore).") +
   theme_minimal(base_size = 11) +
-  theme(panel.grid.minor = element_blank(),
-        legend.position = "none")
-
+  theme(
+    legend.position = "bottom",
+    panel.background = element_rect(fill = "#fdf6e3", color = NA),  # fundo dos painéis (tom pastel claro)
+    plot.background = element_rect(fill = "#fdf6e3", color = NA),   # fundo geral do gráfico
+    strip.background = element_rect(fill = "#eee8d5", color = NA),  # fundo das faixas (facets)
+    panel.grid.minor = element_line(color = "#dcdcdc", linetype = "dotted", size = 0.3),  # grade menor
+    panel.grid.major = element_line(color = "#cccccc", linetype = "solid", size = 0.4),   # grade maior (opcionalmente suavizada também)
+    legend.background = element_rect(fill = "#fdf6e3", color = NA),  # fundo da legenda
+    legend.key = element_rect(fill = "#fdf6e3", color = NA)          # fundo dos elementos da legenda
+  )
 
 plot1
 
+ggsave(
+  filename = "plot1_facetado.png",
+  plot = plot1,
+  width = 10,    
+  height = 14,   
+  dpi = 400      
+)
+
+
 # plot com valores de axis y equalizado por tipo de variaval [se passou ou nao pela zscore]
-plot1 +
+plot2 <- plot1 +
   ggh4x::facetted_pos_scales(y = scales) 
 
-
+ggsave(
+  filename = "plot2_facetado.png",
+  plot = plot2,
+  width = 10,    
+  height = 14,   
+  dpi = 400      
+)
 
 
 
