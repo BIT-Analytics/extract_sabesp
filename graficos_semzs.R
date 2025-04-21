@@ -29,13 +29,7 @@ df_sel <- df |>
 # v1 = volume diario; v2 = vazao natural mensal; v3 = vazao natural mensal/media historica;
 # v4 = pluviometria mensal; v5 = pluviometria mensal / media historica; v6 = vazao captada eta
 
-
-# variáveis serão padronizadas com scale():
-# "Volume Diária (%)"
-# "Vazão natural mensal (m³/s)"
-# "Pluviometria Mensal (mm)"
-# "Vazão captada da ETA (m³/s)"
-
+# tudo sem padronizacao zscore
 df_sel2 <- df_sel |> 
   dplyr::group_by(year) |> 
   dplyr::mutate( # if
