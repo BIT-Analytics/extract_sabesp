@@ -4,11 +4,20 @@ library(glue)
 library(tidyverse)
 
 
+# datas ja baixadas: 
+
+df <- read_csv("resultados/transferencias.csv")
+
+datas_baixadas <- df |> 
+  distinct(data) |> 
+  pull() |> 
+  as.Date()
+
 # Aumentando o tempo de espera para 120 segundos
 options(timeout = 600)
 
 # Gerar datas
-datas <- seq(as.Date("2010/01/01"), as.Date("2025/03/01"), 1) |> 
+datas <- seq(as.Date("2010/01/01"), as.Date("2025/06/30"), 1) |> 
   as_tibble() |> 
   mutate(year = year(value), 
          month = month(value)) |> 
@@ -17,13 +26,17 @@ datas <- seq(as.Date("2010/01/01"), as.Date("2025/03/01"), 1) |>
   select(value) |> 
   pull()
 
+# datas faltantes
+
+data_download <- as.Date(setdiff(datas, datas_baixadas))
+
 
 # Função para buscar dados e armazenar em data.frame
 # Função para buscar dados e armazenar em data.frame
 # Criar função resiliente com insistently()
 safe_fromJSON <- insistently(fromJSON)
 
-dados_coletados <- purrr::map_dfr(datas, function(data) {
+dados_coletados <- purrr::map_dfr(data_download, function(data) {
   
   # Definir a URL do JSON
   url <- glue::glue("https://mananciais-sabesp.fcth.br/api/Mananciais/Boletins/Mananciais/{data}")
@@ -53,4 +66,7 @@ dados_coletados <- purrr::map_dfr(datas, function(data) {
   return(dados_transferencia)
 })
 
-write_csv(dados_coletados, "resultados/transferencias.csv")
+
+dados_coletados |> 
+  bind_rows(df) |> 
+  write_csv("resultados/transferencias.csv")
