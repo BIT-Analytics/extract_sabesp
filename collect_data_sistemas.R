@@ -3,12 +3,20 @@ library(jsonlite)
 library(glue)
 library(tidyverse)
 
+# datas ja baixadas: 
+
+df <- read_csv2("dados_mananciais_completo.csv")
+
+datas_baixadas <- df |> 
+  distinct(data) |> 
+  pull() |> 
+  as.Date()
 
 # Aumentando o tempo de espera para 120 segundos
 options(timeout = 600)
 
 # Gerar datas
-datas <- seq(as.Date("2010/01/01"), as.Date("2025/03/31"), 1) |> 
+datas <- seq(as.Date("2010/01/01"), as.Date("2025/06/30"), 1) |> 
   as_tibble() |> 
   mutate(year = year(value), 
          month = month(value)) |> 
@@ -17,11 +25,14 @@ datas <- seq(as.Date("2010/01/01"), as.Date("2025/03/31"), 1) |>
   select(value) |> 
   pull()
 
+# datas faltantes
+
+data_download <- as.Date(setdiff(datas, datas_baixadas))
 
 
 # Função para buscar dados e armazenar em data.frame
 # Função para buscar dados e armazenar em data.frame
-dados_coletados <- purrr::map_dfr(datas, function(data) {
+dados_coletados <- purrr::map_dfr(data_download, function(data) {
   
   # Definir a URL do JSON
   url <- glue("https://mananciais-sabesp.fcth.br/api/Mananciais/Boletins/Mananciais/{data}")
@@ -98,7 +109,9 @@ dados_coletados <- purrr::map_dfr(datas, function(data) {
 tbl <- dados_coletados |> 
   mutate(vazao_media_eta = 
            ifelse(Sistema %in% c("Baixo Cotia", "Ribeirão da Estiva"), 
-         vazao_captada, vazao_media_eta))
+         vazao_captada, vazao_media_eta)) |> 
+  mutate(data = as.Date(data)) |> 
+  bind_rows(df)
 
 # Salvar como CSV
 write_csv2(tbl, "dados_mananciais_completo.csv")
@@ -106,7 +119,7 @@ write_csv2(tbl, "dados_mananciais_completo.csv")
 # Ajustando os dados
 
 aux <- tbl |> 
-  mutate(Data = floor_date(ymd_hms(data), "day")) |> 
+  mutate(Data = floor_date(ymd(data), "day")) |> 
   mutate(`Vazão natural Mensal / Média histórica` = vazao_natural_mensal / vazao_natural_media) |> 
   mutate(`Chuva mensal/média histórica` = pluviometria_mensal / pluviometria_mensal_media) |> 
   rename(`Nome do sistema` = Sistema, 
