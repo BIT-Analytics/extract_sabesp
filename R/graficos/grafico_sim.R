@@ -110,9 +110,9 @@ plot_sim <- df_sel2 |>
     legend.key = element_rect(fill = "#fdf6e3", color = NA)          # fundo dos elementos da legenda
   )
 
-
+plot_sim
 ggsave(
-  filename = "plot_sim.png",
+  filename = "plot_sim_jul25.png",
   plot = plot_sim,
   width = 13,    
   height = 13,   

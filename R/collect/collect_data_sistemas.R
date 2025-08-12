@@ -18,7 +18,7 @@ datas_baixadas <- df |>
 options(timeout = 600)
 
 # Gerar datas
-datas <- seq(as.Date("2010/01/01"), as.Date("2025/06/30"), 1) |> 
+datas <- seq(as.Date("2010/01/01"), as.Date("2025/07/30"), 1) |> 
   as_tibble() |> 
   mutate(year = year(value), 
          month = month(value)) |> 

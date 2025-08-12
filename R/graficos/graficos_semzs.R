@@ -137,7 +137,7 @@ plot1 <- df_sel3 |>
   scale_size_identity() +
   scale_x_continuous(breaks = 1:12, limits = c(1, 13)) +
   labs(x = "Meses", color = "Ano", y = "Valores", 
-       caption = "Volume Diária (%), Vazão natural mensal (m³/s), Pluviometria Mensal (mm) e Vazão captada da ETA (m³/s) com valores reais.") +
+       caption = "Cantareira - Volume Diária (%), Vazão natural mensal (m³/s), Pluviometria Mensal (mm) e Vazão captada da ETA (m³/s) com valores reais.") +
   theme_minimal(base_size = 11) +
   theme(
     legend.position = "bottom",
@@ -153,7 +153,7 @@ plot1 <- df_sel3 |>
 plot1
 
 ggsave(
-  filename = "plot2_facetado_semnormalizar.png",
+  filename = "plot2_facetado_semnormalizar_jul25.png",
   plot = plot1,
   width = 10,    
   height = 14,   
@@ -162,39 +162,145 @@ ggsave(
 
 
 
-plot2 <- df_sel3 |> 
+plot2x <- df_sel3 |> 
   dplyr::filter(var == "Vazão captada da ETA (m³/s)") |> 
   dplyr::mutate(var = fct_drop(var)) |>
   tibble::rowid_to_column() |> 
   ungroup() |> 
-  ggplot(aes(x = rowid, y = valores)) +
-  geom_line(alpha = 1, size = 1.2, color = "black") +
-  geom_line(aes(color = colourz), alpha = 1, size = 1.2) +
-  scale_color_identity(
+  dplyr::mutate(data_aj = as.Date(Data))
+
+plot2 <- plot2x |> 
+  ggplot(aes(x = data_aj)) +
+  geom_ribbon(aes(ymin = 0, ymax = 40, fill = colourz),
+              alpha = 0.7) +
+  geom_line(aes(y = valores),
+            color = "black", alpha = 1, size = 0.7) +  
+  scale_fill_identity(  # Adiciona parâmetros de legenda para fill
     guide = "legend",
     labels = names(cores_anos),
     breaks = cores_anos
   ) +
-  guides(color = guide_legend(nrow = 1)) + 
-  labs(x = "Período", color = "Ano", y = "Valores", 
-       caption = "Vazão captada da ETA (m³/s) com valores reais.", 
-       title = "Vazão captada da ETA (m³/s)") +
+  guides(fill = guide_legend(nrow = 1)) +  # Controla a legenda de fill
+  labs(
+    x = "Período", 
+    fill = "Ano",  
+    y = "Valores", 
+    caption = "Vazão captada da ETA (m³/s) com valores reais.", 
+    title = "Cantareira - Vazão captada da ETA (m³/s)"
+  ) +
   theme_minimal(base_size = 11) +
   theme(
     legend.position = "bottom",
-    panel.background = element_rect(fill = "#fdf6e3", color = NA),  # fundo dos painéis (tom pastel claro)
-    plot.background = element_rect(fill = "#fdf6e3", color = NA),   # fundo geral do gráfico
-    strip.background = element_rect(fill = "#eee8d5", color = NA),  # fundo das faixas (facets)
-    panel.grid.minor = element_line(color = "#dcdcdc", linetype = "dotted", size = 0.3),  # grade menor
-    panel.grid.major = element_line(color = "#cccccc", linetype = "solid", size = 0.4),   # grade maior (opcionalmente suavizada também)
-    legend.background = element_rect(fill = "#fdf6e3", color = NA),  # fundo da legenda
-    legend.key = element_rect(fill = "#fdf6e3", color = NA)          # fundo dos elementos da legenda
+    panel.background = element_rect(fill = "#fdf6e3", color = NA),
+    plot.background = element_rect(fill = "#fdf6e3", color = NA),
+    strip.background = element_rect(fill = "#eee8d5", color = NA),
+    panel.grid.minor = element_line(color = "#dcdcdc", linetype = "dotted", size = 0.3),
+    panel.grid.major = element_line(color = "#cccccc", linetype = "solid", size = 0.4),
+    legend.background = element_rect(fill = "#fdf6e3", color = NA),
+    legend.key = element_rect(fill = "#fdf6e3", color = NA)
   )
 
 plot2
 
 ggsave(
-  filename = "plot2_vazaocaptada_semnormalizar.png",
+  filename = "plot2_vazaocaptada_semnormalizar_jul25.png",
+  plot = plot2,
+  width = 13,    
+  height = 9,   
+  dpi = 400      
+)
+
+####
+####
+
+library(changepoint)
+pelt_serie <- cpt.mean(data = plot2x$valores, method = "PELT") 
+binseg_serie <- cpt.mean(data = plot2x$valores, method = "BinSeg")
+
+plot(pelt_serie)
+
+plot(binseg_serie, cpt.width = 3, cpt.col = 'blue')
+cpts(binseg_serie)
+
+
+# otimizando
+Q <- floor((length(plot2x$valores)/2)) + 1
+Penalidade <- "SIC"
+binseg_serie <- cpt.mean(data = plot2x$valores, method = "BinSeg",
+                         Q = Q, penalty = Penalidade)
+plot(binseg_serie)
+
+# numero de pontos
+plot_n_segmentos <-binseg_serie@pen.value.full |> 
+  data.frame()
+colnames(plot_n_segmentos) <- "SIC"
+
+plot1 <- plot_n_segmentos |> 
+  dplyr::mutate(Pontos = (1:nrow(plot_n_segmentos))) |> 
+  ggplot2::ggplot() +
+  geom_path(aes(x = Pontos, 
+                y = SIC)) +
+  geom_point(aes(x = Pontos,
+                 y = SIC,
+                 fill = SIC),
+             size = 4, shape = 21, show.legend = F) +
+  scale_fill_gradient2(low = "red", high = "blue")
+plot1
+
+# reduzindo para ate 4 pontos/segmentos
+QQ <- 3
+binseg_serie2 <- cpt.mean(data = plot2x$valores, method = "BinSeg",
+                          Q = QQ, penalty = Penalidade)
+plot(binseg_serie2)
+
+# df com a série em análise
+mv1 <- data.frame(ts = plot2x$valores,
+                  Obs = (1:length(plot2x$valores)))
+
+# Medias em cada segmento/cluster
+md <- changepoint::param.est(binseg_serie2)[[1]]
+
+# plots
+segments_data <- data.frame(
+  x = c(0, changepoint::cpts(binseg_serie2)[1:QQ]),
+  xend = c(changepoint::cpts(binseg_serie2)[1:QQ], length(mv1$ts)),
+  y = md[1:(QQ+1)],
+  yend = md[1:(QQ+1)],
+  segment_type = "Changepoint"
+)
+
+# 
+p2 <- mv1 |> 
+  ggplot(aes(x = Obs, y = ts)) +
+  geom_line() +
+  geom_segment(
+    data = segments_data,
+    aes(x = x, y = y, xend = xend, yend = yend, color = segment_type),
+    size = 1
+  ) +
+  scale_color_manual(values = "blue", name = NULL) +
+  labs(
+    x = "Período", 
+    y = "Valores", 
+    caption = "Changepoint (segmentação binária) de vazão captada da ETA (m³/s) com valores reais.", 
+    title = "Cantareira - Vazão captada da ETA (m³/s)"
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(
+    legend.position = "bottom",
+    panel.background = element_rect(fill = "#fdf6e3", color = NA),
+    plot.background = element_rect(fill = "#fdf6e3", color = NA),
+    strip.background = element_rect(fill = "#eee8d5", color = NA),
+    panel.grid.minor = element_line(color = "#dcdcdc", linetype = "dotted", size = 0.3),
+    panel.grid.major = element_line(color = "#cccccc", linetype = "solid", size = 0.4),
+    legend.background = element_rect(fill = "#fdf6e3", color = NA),
+    legend.key = element_rect(fill = "#fdf6e3", color = NA)
+  )
+p2
+
+
+ggsave(
+  filename = "changept_vazaocaptada_semnormalizar_jul25.png",
   plot = plot2,
   width = 13,    
   height = 9,   
