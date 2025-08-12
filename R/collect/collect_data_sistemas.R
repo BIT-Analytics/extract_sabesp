@@ -1,3 +1,5 @@
+# Faz o download dos dados na tabela presente no site da SABESP
+
 # Carregar pacotes
 library(jsonlite)
 library(glue)
