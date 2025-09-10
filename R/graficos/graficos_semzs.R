@@ -4,6 +4,16 @@ library(readxl)
 library(ggrepel)
 library(patchwork) # Para combinar os gráficos
 library(ggh4x)
+library(changepoint)
+
+# Padronizacao de data e idioma
+# MAC/Linux
+Sys.setlocale("LC_TIME", "pt_BR.UTF-8")
+
+# Windows
+# Sys.setlocale("LC_TIME", "Portuguese_Brazil.1252")
+
+
 
 # Carrega e pré-processa
 df <- readxl::read_xlsx("resultados/vazao_transferencias/vazao_transferencia_cantareira.xlsx") |> 
@@ -136,8 +146,8 @@ plot1 <- df_sel3 |>
   scale_alpha_identity() +
   scale_size_identity() +
   scale_x_continuous(breaks = 1:12, limits = c(1, 13)) +
-  labs(x = "Meses", color = "Ano", y = "Valores", 
-       caption = "Cantareira - Volume Diária (%), Vazão natural mensal (m³/s), Pluviometria Mensal (mm) e Vazão captada da ETA (m³/s) com valores reais.") +
+  labs(x = "Meses", color = "Ano", y = "Valores", title = "Cantareira",
+       caption = "Vazão Transferência Cantareira - Volume Diária (%), Vazão natural mensal (m³/s), Pluviometria Mensal (mm) e Vazão captada da ETA (m³/s) com valores reais.") +
   theme_minimal(base_size = 11) +
   theme(
     legend.position = "bottom",
@@ -153,7 +163,7 @@ plot1 <- df_sel3 |>
 plot1
 
 ggsave(
-  filename = "plot2_facetado_semnormalizar_jul25.png",
+  filename = "cantareira_semnormalizar_jul25.png",
   plot = plot1,
   width = 10,    
   height = 14,   
@@ -212,8 +222,6 @@ ggsave(
 
 ####
 ####
-
-library(changepoint)
 pelt_serie <- cpt.mean(data = plot2x$valores, method = "PELT") 
 binseg_serie <- cpt.mean(data = plot2x$valores, method = "BinSeg")
 
@@ -255,15 +263,20 @@ plot(binseg_serie2)
 
 # df com a série em análise
 mv1 <- data.frame(ts = plot2x$valores,
-                  Obs = (1:length(plot2x$valores)))
+                  data = plot2x$Data)
 
-# Medias em cada segmento/cluster
-md <- changepoint::param.est(binseg_serie2)[[1]]
+# Identificar changepoints (ajuste o método conforme necessário)
+binseg_serie2 <- changepoint::cpt.mean(mv1$ts, method = "BinSeg", Q = QQ) 
+md <- changepoint::param.est(binseg_serie2)[[1]]  # Médias por segmento
+cpts <- changepoint::cpts(binseg_serie2)  # Índices dos changepoints
+
+# Converter índices dos changepoints para datas correspondentes
+cpt_dates <- mv1$data[cpts]
 
 # plots
 segments_data <- data.frame(
-  x = c(0, changepoint::cpts(binseg_serie2)[1:QQ]),
-  xend = c(changepoint::cpts(binseg_serie2)[1:QQ], length(mv1$ts)),
+  x = c(min(plot2x$Data), cpt_dates),
+  xend = c(cpt_dates, max(plot2x$Data)),
   y = md[1:(QQ+1)],
   yend = md[1:(QQ+1)],
   segment_type = "Changepoint"
@@ -271,7 +284,7 @@ segments_data <- data.frame(
 
 # 
 p2 <- mv1 |> 
-  ggplot(aes(x = Obs, y = ts)) +
+  ggplot(aes(x = data, y = ts)) +
   geom_line() +
   geom_segment(
     data = segments_data,
@@ -279,6 +292,11 @@ p2 <- mv1 |>
     size = 1
   ) +
   scale_color_manual(values = "blue", name = NULL) +
+  scale_x_date(
+    date_breaks = "4 month",
+    date_labels = "%b %Y",     # Formato da data "Jan 2025"
+    expand = c(0, 0)           # Remove espaços extras nos extremos
+  ) +
   labs(
     x = "Período", 
     y = "Valores", 
@@ -294,14 +312,16 @@ p2 <- mv1 |>
     panel.grid.minor = element_line(color = "#dcdcdc", linetype = "dotted", size = 0.3),
     panel.grid.major = element_line(color = "#cccccc", linetype = "solid", size = 0.4),
     legend.background = element_rect(fill = "#fdf6e3", color = NA),
-    legend.key = element_rect(fill = "#fdf6e3", color = NA)
+    legend.key = element_rect(fill = "#fdf6e3", color = NA), 
+    axis.text.x = element_text(angle = 45, vjust = 1.1, hjust = 1,
+                               size = 8)
   )
 p2
 
 
 ggsave(
-  filename = "changept_vazaocaptada_semnormalizar_jul25.png",
-  plot = plot2,
+  filename = "changept_vazaocaptada_cantar_jul25.png",
+  plot = p2,
   width = 13,    
   height = 9,   
   dpi = 400      
