@@ -17,7 +17,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          Rscript -e 'install.packages(c("jsonlite","glue","dplyr"))'
+          Rscript -e 'install.packages(c("jsonlite","glue","dplyr", "writexl"))'
 
       - name: Run script
         run: Rscript R/collect/collect_central.R
