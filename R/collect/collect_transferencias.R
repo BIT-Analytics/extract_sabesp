@@ -72,5 +72,6 @@ dados_coletados <- purrr::map_dfr(data_download, function(data) {
 
 
 dados_coletados |> 
+  distinct_all() |> 
   bind_rows(df) |> 
   write_csv("resultados/transferencias.csv")
