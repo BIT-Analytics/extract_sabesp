@@ -3,8 +3,8 @@
 # Carregar pacotes
 library(jsonlite)
 library(glue)
-library(tidyverse)
-
+library(dplyr)
+library(writexl)
 # datas ja baixadas: 
 
 df <- read_csv2("dados_mananciais_completo.csv")

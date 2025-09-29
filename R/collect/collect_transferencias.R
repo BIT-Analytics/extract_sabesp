@@ -1,10 +1,9 @@
 # Faz o download das transferências
 
 # Carregar pacotes
-library(jsonlite)
 library(glue)
-library(tidyverse)
-
+library(dplyr)
+library(writexl)
 
 # datas ja baixadas: 
 

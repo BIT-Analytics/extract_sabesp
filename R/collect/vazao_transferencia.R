@@ -3,8 +3,10 @@
 
 #### Library
 
-require(tidyverse)
-
+library(jsonlite)
+library(glue)
+library(dplyr)
+library(writexl)
 
 #### dados
 
