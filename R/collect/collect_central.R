@@ -4,6 +4,7 @@ require(readr)
 require(lubridate)
 require(purrr)
 require(stringr)
+require(tidyr)
 #### Chamando os dados: 
 
 source("R/collect/collect_data_sistemas.R")
