@@ -113,7 +113,7 @@ df_sel3 <- df_sel2 |>
 # para ajustar axis y de acordo com os valores de -3 a 3 e de -4 a 4
 df_scales <- df_sel3 |>
   dplyr::distinct(var, ylim_min, ylim_max) |> 
-  split(.$var)
+  dplyr::group_split(var)
 
 scales <- lapply(df_scales, function(x) {
   scale_y_continuous(limits = c(x$ylim_min, x$ylim_max))
@@ -122,7 +122,7 @@ scales <- lapply(df_scales, function(x) {
 # ultimos anos
 labels_finais <- df_sel3 |> 
   dplyr::filter((year %in% c(2021, 2022, 2023, 2024) & mes == 12) |
-                  (year == 2025 & mes == 3))
+                  (year == 2025 & mes == 7))
 
 
 
@@ -155,8 +155,8 @@ plot1 <- df_sel3 |>
   scale_alpha_identity() +
   scale_size_identity() +
   scale_x_continuous(breaks = 1:12, limits = c(1, 13)) +
-  labs(x = "Meses", color = "Ano", y = "Valores", 
-       caption = "Volume Diária (%), Vazão natural mensal (m³/s), Pluviometria Mensal (mm) e Vazão captada da ETA (m³/s) com valores normalizados (zscore).") +
+  labs(x = "Meses", color = "Ano", y = "Valores", title = "Cantareira",
+       caption = "Vazão de transferência Cantareira - Volume Diária (%), Vazão natural mensal (m³/s), Pluviometria Mensal (mm) e Vazão captada da ETA (m³/s) com valores normalizados (zscore).") +
   theme_minimal(base_size = 11) +
   theme(
     legend.position = "bottom",
@@ -171,21 +171,23 @@ plot1 <- df_sel3 |>
 
 plot1
 
-ggsave(
-  filename = "plot1_facetado.png",
-  plot = plot1,
-  width = 10,    
-  height = 14,   
-  dpi = 400      
-)
+# ggsave(
+#   filename = "plot1_facetado.png",
+#   plot = plot1,
+#   width = 10,    
+#   height = 14,   
+#   dpi = 400      
+# )
 
 
 # plot com valores de axis y equalizado por tipo de variaval [se passou ou nao pela zscore]
 plot2 <- plot1 +
   ggh4x::facetted_pos_scales(y = scales) 
+plot2
+
 
 ggsave(
-  filename = "plot2_facetado.png",
+  filename = "plot2_cantareira_zscore.png",
   plot = plot2,
   width = 10,    
   height = 14,   
