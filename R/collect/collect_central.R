@@ -1,6 +1,6 @@
 ### Load: 
 require(dplyr)
-
+require(readr)
 
 #### Chamando os dados: 
 
