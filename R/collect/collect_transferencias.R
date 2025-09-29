@@ -18,7 +18,7 @@ datas_baixadas <- df |>
 options(timeout = 600)
 
 # Gerar datas
-datas <- seq(as.Date("2010/01/01"), as.Date("2025/07/30"), 1) |> 
+datas <- seq(as.Date("2010/01/01"),  Sys.Date(), 1) |> 
   as_tibble() |> 
   mutate(year = year(value), 
          month = month(value)) |> 
@@ -30,6 +30,9 @@ datas <- seq(as.Date("2010/01/01"), as.Date("2025/07/30"), 1) |>
 # datas faltantes
 
 data_download <- as.Date(setdiff(datas, datas_baixadas))
+
+data_download <- if (length(data_download) == 0) max(datas) else data_download
+
 
 
 # Função para buscar dados e armazenar em data.frame
