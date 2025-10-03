@@ -34,7 +34,6 @@ data_download <- as.Date(setdiff(datas, datas_baixadas))
 data_download <- if (length(data_download) == 0) max(datas) else data_download
 
 
-
 # Função para buscar dados e armazenar em data.frame
 # Função para buscar dados e armazenar em data.frame
 # Criar função resiliente com insistently()
@@ -42,31 +41,18 @@ safe_fromJSON <- insistently(fromJSON)
 
 dados_coletados <- purrr::map_dfr(data_download, function(data) {
   
+  
+  data <- data_download[1]
   # Definir a URL do JSON
-  url <- glue::glue("https://mananciais-sabesp.fcth.br/api/Mananciais/Boletins/Mananciais/{data}")
+  url <- glue::glue("https://mananciais.sabesp.com.br/api/v4/boletins/mananciais/{data}")
   
   # Ler e converter o JSON com tentativa automática de repetição
   dados <- safe_fromJSON(url)
   
   # Extrair dados dos sistemas
-  out <- dados[["ReturnObj"]][["dadosTransferencias"]] |> 
-    dplyr::filter(Abreviatura %in% c("Q PS-SC", "Q Rev.Capiv.", 
-                                     "Q Rev.Taquac.", "Q RP-RG", 
-                                     "Q Guarat.", "Q EEAB Bir", "Q RG-Taiaçupeba", 
-                                     "Q Transf Guaió")) |> 
-    dplyr::select(Abreviatura, Valor, SistemaId) |> 
-    dplyr::rename(id_sistema = SistemaId) |> 
-    mutate(data = data)
+  out <- dados[["data"]][["transferenciaData"]]
   
-  # Extrair dados da ETA
-  dados_transferencia <- dplyr::mutate(out, Sistema = dplyr::case_when(
-    id_sistema == 0 ~ "Cantareira", 
-    id_sistema == 1 ~ "Alto Tietê", 
-    id_sistema == 2 ~ "Guarapiranga", 
-    id_sistema == 4 ~ "Rio Grande", 
-    id_sistema == 5 ~ "Rio Claro"
-  ))
-  
+  # Extrair dados da ET
   return(dados_transferencia)
 })
 

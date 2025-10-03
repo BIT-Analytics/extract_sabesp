@@ -5,6 +5,7 @@ library(jsonlite)
 library(glue)
 library(dplyr)
 library(writexl)
+# library(tidyverse)
 # datas ja baixadas: 
 
 df <- read_csv2("dados_mananciais_completo.csv")
@@ -42,81 +43,96 @@ data_download <- if (length(data_download) == 0) max(datas) else data_download
 dados_coletados <- purrr::map_dfr(data_download, function(data) {
   
   # Definir a URL do JSON
-  url <- glue("https://mananciais-sabesp.fcth.br/api/Mananciais/Boletins/Mananciais/{data}")
+  #url <- glue("https://mananciais-sabesp.fcth.br/api/Mananciais/Boletins/Mananciais/{data}")
   
+  url2 <- glue("https://mananciais.sabesp.com.br/api/v4/boletins/mananciais/{data}")
   # Ler e converter o JSON
-  dados <- fromJSON(url)
+  dados <- fromJSON(url2)
   
   # Extrair dados dos sistemas
-  dados_sistemas <- data.frame(
-    data = dados[["ReturnObj"]][["dadosSistemas"]][["Data"]][1],
-    id_sistema = dados[["ReturnObj"]][["dadosSistemas"]][["SistemaId"]],
-    volume = dados[["ReturnObj"]][["dadosSistemas"]][["VolumePorcentagem"]],
-    variacao_volume = dados[["ReturnObj"]][["dadosSistemas"]][["VariacaoVolumePorcentagem"]],
-    vazao_natural_diaria = dados[["ReturnObj"]][["dadosSistemas"]][["VazaoNatural"]],
-    vazao_natural_mensal = dados[["ReturnObj"]][["dadosSistemas"]][["VazaoNaturalMediaNoMes"]],
-    vazao_natural_media = dados[["ReturnObj"]][["dadosSistemas"]][["QMLTMensal"]],
-    vazao_descarregada = dados[["ReturnObj"]][["dadosSistemas"]][["VazaoJusante"]],
-    pluviometria = dados[["ReturnObj"]][["dadosSistemas"]][["Precipitacao"]],
-    pluviometria_mensal = dados[["ReturnObj"]][["dadosSistemas"]][["PrecipitacaoAcumuladaNoMes"]],
-    pluviometria_mensal_media = dados[["ReturnObj"]][["dadosSistemas"]][["PMLTMensal"]],
-    #vazao_eta = dados[["ReturnObj"]][["dadosEtaDiario"]][["VazaoRetirada"]],
-    vazao_media_eta = dados[["ReturnObj"]][["dadosSistemas"]][["VazaoRetiradaMediaNoMes"]]
-  ) |> 
+    dados_sistemas <- data.frame(
+      data                   = dados[["data"]][["sistemasData"]][["date"]],
+      id_sistema             = dados[["data"]][["sistemasData"]][["idSistema"]],
+      volume                 = dados[["data"]][["sistemasData"]][["volumeUtilArmazenadoPorcentagem"]],
+      variacao_volume        = dados[["data"]][["sistemasData"]][["variacaoVolumeUtil"]],
+      vazao_natural_diaria   = dados[["data"]][["sistemasData"]][["vazaoNatural"]],
+      vazao_natural_mensal   = dados[["data"]][["sistemasData"]][["vazaoNaturalNoMes"]],
+      vazao_natural_media    = dados[["data"]][["sistemasData"]][["vazaoNaturalMediaHistorica"]],
+      vazao_descarregada     = dados[["data"]][["sistemasData"]][["vazaoJusante"]],
+      pluviometria           = dados[["data"]][["sistemasData"]][["chuva"]],
+      pluviometria_mensal    = dados[["data"]][["sistemasData"]][["chuvaAcumuladaNoMes"]],
+      pluviometria_mensal_media = dados[["data"]][["sistemasData"]][["chuvaMediaHistorica"]],
+      vazao_media_eta        = dados[["data"]][["sistemasData"]][["vazaoRetiradaNoMes"]]
+    ) |>
+      mutate(
+        Sistema = case_match(
+          id_sistema,
+          0  ~ "Cantareira",
+          1  ~ "Alto Tietê",
+          2  ~ "Guarapiranga",
+          3  ~ "Alto Cotia",
+          4  ~ "Rio Grande",
+          5  ~ "Rio Claro",
+          17 ~ "São Lourenço",
+          19 ~ "Cantareira Velho",
+          99 ~ "SIM"
+        ),
+        .after = id_sistema
+      ) |> 
     mutate(Sistema = case_match(id_sistema, 
-                                0 ~ "Cantareira", 
-                                1 ~ "Alto Tietê", 
-                                2 ~ "Guarapiranga", 
-                                3 ~ "Alto Cotia", 
-                                4 ~ "Rio Grande", 
-                                5 ~ "Rio Claro", 
-                                17 ~ "São Lourenço", 
-                                19 ~ "Cantareira Velho", 
-                                99 ~ "SIM"), .after = id_sistema)
+                                64 ~ "Cantareira", 
+                                65 ~ "Alto Tietê", 
+                                66 ~ "Guarapiranga", 
+                                67 ~ "Alto Cotia", 
+                                68 ~ "Rio Grande", 
+                                69 ~ "Rio Claro", 
+                                72 ~ "São Lourenço", 
+                                74 ~ "Cantareira Velho", 
+                                75 ~ "SIM"), .after = id_sistema)
   
   # Extrair dados da ETA
-  dados_eta <- data.frame(
-    data = dados[["ReturnObj"]][["dadosSistemas"]][["Data"]][1],
-    id_sistema = dados[["ReturnObj"]][["dadosEtaDiario"]][["SistemaId"]], 
-    id_componente = dados[["ReturnObj"]][["dadosEtaDiario"]][["ComponenteId"]],
-    vazao_captada = dados[["ReturnObj"]][["dadosEtaDiario"]][["VazaoRetirada"]]
-  ) |> 
-    mutate(Sistema = case_when(
-      id_sistema == 0 ~ "Cantareira", 
-      id_sistema == 1 ~ "Alto Tietê", 
-      id_sistema == 2 ~ "Guarapiranga", 
-      id_sistema == 3 & id_componente == 27 ~ "Alto Cotia", 
-      id_sistema == 3 & id_componente != 25 ~ "Baixo Cotia", 
-      id_sistema == 4 & id_componente == 25 ~ "Rio Grande", 
-      id_sistema == 4 & id_componente != 25 ~ "Ribeirão da Estiva", 
-      id_sistema == 5 ~ "Rio Claro", 
-      id_sistema == 17 ~ "São Lourenço", 
-      id_sistema == 19 ~ "Cantareira Velho", 
-      id_sistema == 99 ~ "SIM"
-    )) |> 
-    group_by(data, Sistema) |> 
-    summarise(vazao_captada = sum(vazao_captada)) # resolve cantareira velho
-    
-    vazao_eta_sim <- dados_eta |> 
-      filter(Sistema != "Cantareira Velho") |> 
-      ungroup() |> 
-      summarise(sum(vazao_captada)) |> 
-      pull()
+  # dados_eta <- data.frame(
+  #   data = dados[["data"]][["sistemasData"]][["dadosSistemas"]][["Data"]][1],
+  #   id_sistema = dados[["data"]][["sistemasData"]][["dadosEtaDiario"]][["SistemaId"]], 
+  #   id_componente = dados[["data"]][["sistemasData"]][["dadosEtaDiario"]][["ComponenteId"]],
+  #   vazao_captada = dados[["data"]][["sistemasData"]][["dadosEtaDiario"]][["VazaoRetirada"]]
+  # ) |> 
+  #   mutate(Sistema = case_when(
+  #     id_sistema == 64 ~ "Cantareira", 
+  #     id_sistema == 65 ~ "Alto Tietê", 
+  #     id_sistema == 66 ~ "Guarapiranga", 
+  #     id_sistema == 3 & id_componente == 27 ~ "Alto Cotia", 
+  #     id_sistema == 3 & id_componente != 25 ~ "Baixo Cotia", 
+  #     id_sistema == 4 & id_componente == 25 ~ "Rio Grande", 
+  #     id_sistema == 4 & id_componente != 25 ~ "Ribeirão da Estiva", 
+  #     id_sistema == 5 ~ "Rio Claro", 
+  #     id_sistema == 17 ~ "São Lourenço", 
+  #     id_sistema == 19 ~ "Cantareira Velho", 
+  #     id_sistema == 99 ~ "SIM"
+  #   )) |> 
+  #   group_by(data, Sistema) |> 
+  #   summarise(vazao_captada = sum(vazao_captada)) # resolve cantareira velho
+  #   
+  #   vazao_eta_sim <- dados_eta |> 
+  #     filter(Sistema != "Cantareira Velho") |> 
+  #     ungroup() |> 
+  #     summarise(sum(vazao_captada)) |> 
+  #     pull()
+  # 
+  # # Realizar o full_join entre os dois bancos de dados (usando a coluna id_sistema)
+  # dados_completos <- full_join(dados_sistemas, dados_eta, by = c("Sistema", "data")) |> 
+  #   mutate(vazao_captada = ifelse(Sistema == "SIM", 
+  #                                 vazao_eta_sim, vazao_captada))
   
-  # Realizar o full_join entre os dois bancos de dados (usando a coluna id_sistema)
-  dados_completos <- full_join(dados_sistemas, dados_eta, by = c("Sistema", "data")) |> 
-    mutate(vazao_captada = ifelse(Sistema == "SIM", 
-                                  vazao_eta_sim, vazao_captada))
-  
-  return(dados_completos)
+  return(dados_sistemas)
 })
 
   ### Ajustando: 
 
 tbl <- dados_coletados |> 
-  mutate(vazao_media_eta = 
-           ifelse(Sistema %in% c("Baixo Cotia", "Ribeirão da Estiva"), 
-         vazao_captada, vazao_media_eta)) |> 
+  # mutate(vazao_media_eta = 
+  #          ifelse(Sistema %in% c("Baixo Cotia", "Ribeirão da Estiva"), 
+  #        vazao_captada, vazao_media_eta)) |> 
   mutate(data = as.Date(data)) |> 
   bind_rows(df) |> 
   distinct_all()
