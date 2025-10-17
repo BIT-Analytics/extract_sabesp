@@ -3,10 +3,7 @@ library(echarts4r)
 
 df <- read_csv2("dados_mananciais_completo.csv")
 
-echarts4r::e_common(
-  font_family = "Arial",
-  locale = "PT"
-)
+
 
 # volume util ----
 # esse grafico deve ser por percentual no eixo Y
@@ -18,6 +15,7 @@ df |>
   e_area(
     volume,
     name = "Volume (%)",
+    smooth = T,
     barWidth = "70%",  # ✅ barras mais largas e bem visíveis
     itemStyle = list(
       color = "#1f77b4",
@@ -60,6 +58,7 @@ df |>
   e_charts(data) |>
   e_area(
     vazao_captada,
+    smooth = T,
     name = "m3/s",
     barWidth = "70%",  
     itemStyle = list(
@@ -102,6 +101,7 @@ df |>
   e_charts(data) |>
   e_area(
     pluviometria_mensal,
+    smooth = T,
     name = "mm",
     barWidth = "70%",  
     itemStyle = list(
@@ -111,6 +111,7 @@ df |>
   ) |>
   e_line(
     pluviometria_mensal_media,
+    smooth = T,
     name = "Média histórica [mm]",
     symbol = "circle",
     symbolSize = 8,
@@ -152,6 +153,7 @@ df |>
   e_charts(data) |>
   e_area(
     vazao_natural_mensal,
+    smooth = T,
     name = "m3/s",
     barWidth = "70%",  
     itemStyle = list(
@@ -161,6 +163,7 @@ df |>
   ) |>
   e_line(
     vazao_natural_media,
+    smooth = T,
     name = "Média histórica [m3/s]",
     symbol = "circle",
     symbolSize = 8,
