@@ -1,65 +1,103 @@
 ### Packages
-
 library(shiny)
 library(tidyverse)
 library(echarts4r)
+library(bs4Dash)
+library(shinycssloaders)
+
+### Box com spinner de carregamento
+loadbox <- \(content, width = 12, maxi = T, ...) {
+  bs4Dash::column(
+    width = width,
+    bs4Dash::box(shinycssloaders::withSpinner(content, color = '#ff851b'),
+                 ..., maximizable = maxi, width = 12)
+  )
+}
 
 ### Load: 
-
 df <- read_csv2("data/dados_mananciais_completo.csv") |> 
   filter(Sistema %in% c("SIM", "Cantareira", "Alto Tietê", "Guarapiranga"))
-
 min <- min(df$data)
-
 max <- max(df$data)
 
-
-# Define UI for application that draws a histogram
-ui <- fluidPage(
-
-    # Application title
-    titlePanel("Mananciais SP"),
-
-    # Sidebar with a slider input for number of bins 
-    sidebarLayout(
-        sidebarPanel(
-          selectInput("sistema", 
-                      label = h3("Escolha o sistema:"), 
-                      choices = unique(df$Sistema), 
-                      selected = "SIM", 
-                      multiple = FALSE, 
-                      selectize = TRUE), 
-          dateRangeInput("dates", 
-                         label = h3("Escolha as datas:"), 
-                         min = min, 
-                         max = max, 
-                         start = min, 
-                         end = max), 
-          hr(),
-          fluidRow(column(12, textOutput("ultima_atualizacao")))
-        ), 
-
-        # Show a plot of the generated distribution
-        mainPanel(
-          hr(),
-          uiOutput("cabecalho_sistema"),
-          hr(),
-          conditionalPanel(
-            condition = "input.sistema != 'SIM'",
-            echarts4rOutput("precipitacao", height = "420px")
-          ), 
-          echarts4rOutput("vazao_natural"), 
-          echarts4rOutput("volume_armazenado"), 
-          echarts4rOutput("volume_retirado")
-        )
+ui <- bs4DashPage(
+  help = FALSE,
+  dark = FALSE,
+  
+  header = bs4DashNavbar(
+    title = 'Mananciais SP',
+    leftUi = tagList(
+      selectInput("sistema", 
+                  label = h3("Escolha o sistema:"), 
+                  choices = unique(df$Sistema), 
+                  selected = "SIM", 
+                  multiple = FALSE, 
+                  selectize = TRUE), 
+      dateRangeInput("dates", 
+                     label = h3("Escolha as datas:"), 
+                     min = min, 
+                     max = max, 
+                     start = min, 
+                     end = max)
     )
+  ),
+  
+  sidebar = NULL,
+  
+  body = bs4DashBody(
+    conditionalPanel(
+      condition = "input.sistema != 'SIM'",
+      loadbox(echarts4rOutput("precipitacao", height = "420px"))
+    ),
+    loadbox(
+      title = 'Vazão Natural no Mês (m³/s) e Vazão Natural Média Histórica (m³/s)',
+      echarts4rOutput("vazao_natural")
+    ),
+    loadbox(
+      title = 'a',
+      echarts4rOutput("volume_armazenado")
+    ),
+    loadbox(
+      title = 'a',
+      echarts4rOutput("volume_retirado")
+    )
+  )
 )
+
+
+# ui <- fluidPage(
+# 
+#     # Application title
+#     titlePanel("Mananciais SP"),
+# 
+#     # Sidebar with a slider input for number of bins 
+#     sidebarLayout(
+#         sidebarPanel(
+#           , 
+#           hr(),
+#           fluidRow(column(12, textOutput("ultima_atualizacao")))
+#         ), 
+# 
+#         # Show a plot of the generated distribution
+#         mainPanel(
+#           hr(),
+#           uiOutput("cabecalho_sistema"),
+#           hr(),
+#           conditionalPanel(
+#             condition = "input.sistema != 'SIM'",
+#             echarts4rOutput("precipitacao", height = "420px")
+#           ), 
+#           echarts4rOutput("vazao_natural"), 
+#           echarts4rOutput("volume_armazenado"), 
+#           echarts4rOutput("volume_retirado")
+#         )
+#     )
+# )
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
 
-  # Atualizacao: 
-  
+  # Atualizacao:
   output$ultima_atualizacao <- renderText({
     paste("Última atualização:", max(df$data, na.rm = TRUE))
   })
@@ -84,7 +122,6 @@ server <- function(input, output) {
   })
   
   # Gráfico precipitacao: 
-  
   output$precipitacao <- renderEcharts4r({
     d <- dados_filtrados()
     req(nrow(d) > 0)
@@ -134,7 +171,6 @@ server <- function(input, output) {
   
     
   ### Vazao Natural:
-  
   output$vazao_natural <- renderEcharts4r({
     req(input$sistema, input$dates)
     
@@ -173,12 +209,6 @@ server <- function(input, output) {
         axisLine = list(show = TRUE, lineStyle = list(color = "#666", width = 1.5)),
         axisLabel = list(color = "#333", fontWeight = "bold"),
         splitLine = list(show = FALSE)
-      ) |>
-      e_title(
-        text = "\nVazão Natural no Mês (m³/s) e Vazão Natural Média Histórica (m³/s)",
-        textStyle = list(fontSize = 18, fontWeight = "bold"),
-        left = "center",
-        top  = "5%"
       ) |>
       e_tooltip(trigger = "axis") |>
       e_legend(show = FALSE) |>
@@ -280,10 +310,6 @@ server <- function(input, output) {
       e_grid(left = "8%", right = "5%", bottom = "10%", top = "20%") |>
       e_locale("pt-BR")
   })
-  
-  
-  
-  
 }
 
 # Run the application 
