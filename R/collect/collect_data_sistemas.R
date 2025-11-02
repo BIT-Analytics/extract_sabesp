@@ -172,6 +172,16 @@ aux_selecionado <- aux_selecionado %>%
 
 aux_selecionado[is.na(aux_selecionado)] <- "-"
 
+aux_selecionado <- aux_selecionado %>%
+  mutate(
+    Data = as.Date(Data),
+    ano_mes = floor_date(Data, "month")   # cria grupos por ano+mês
+  ) %>%
+  group_by(ano_mes) %>%
+  filter(Data == max(Data)) %>%           # pega o último dia de cada mês/ano
+  ungroup()
+
+
 write_csv2(aux_selecionado, "resultados/dados_mananciais_ajustados.csv")
 
 
@@ -180,8 +190,7 @@ write_csv2(aux_selecionado, "resultados/dados_mananciais_ajustados.csv")
 df <- read_csv2("resultados/dados_mananciais_ajustados.csv") |> 
   mutate(across(
     -c(Data, `Nome do sistema`),
-    \(x) str_replace(x,'\\.',',')
-  ))
+    \(x) str_replace(x,'\\.',',')))
 
 
 writexl::write_xlsx(df, "resultados/dados_mananciais_adequados.xlsx")
