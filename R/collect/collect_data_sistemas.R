@@ -5,6 +5,7 @@ library(jsonlite)
 library(glue)
 library(dplyr)
 library(writexl)
+library(httr)
 # library(tidyverse)
 # datas ja baixadas: 
 
@@ -46,8 +47,10 @@ dados_coletados <- purrr::map_dfr(data_download, function(data) {
   #url <- glue("https://mananciais-sabesp.fcth.br/api/Mananciais/Boletins/Mananciais/{data}")
   
   url2 <- glue("https://mananciais.sabesp.com.br/api/v4/boletins/mananciais/{data}")
+
   # Ler e converter o JSON
-  dados <- fromJSON(url2)
+  pagina <- httr::RETRY('GET', url2)
+  dados <- httr::content(pagina, 'text') |> fromJSON()
   
   # Extrair dados dos sistemas
     dados_sistemas <- data.frame(

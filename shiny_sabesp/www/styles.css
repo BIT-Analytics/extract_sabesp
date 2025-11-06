@@ -1,0 +1,35 @@
+.navbar-right {
+    display: none;
+}
+
+.content-wrapper > .content {
+    padding-top: 50px !important;
+}
+
+nav.main-header h4 {
+    text-align: center;
+    font-weight: bold;
+    margin: 0;
+    padding: 10px;
+}
+
+nav.main-header div.shiny-input-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    margin-right: 20px;
+}
+
+nav.main-header label {
+    margin: 0;
+}
+
+#cabecalho_sistema h3, #cabecalho_sistema h5 {
+    margin: 0;
+}
+#cabecalho_sistema strong {
+    color: #a8a8a8ff;
+    margin-bottom: 15px;
+    display: block;
+}
