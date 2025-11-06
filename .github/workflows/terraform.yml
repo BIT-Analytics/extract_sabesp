@@ -18,7 +18,23 @@ jobs:
       - name: Install dependencies
         run: |
           Rscript -e 'install.packages(c("jsonlite","glue","dplyr", "writexl", "readr", 
-          "lubridate", "purrr", "stringr", "tidyr"))'
+          "lubridate", "purrr", "stringr", "tidyr", "httr"))'
 
       - name: Run script
         run: Rscript R/collect/collect_central.R
+
+      - name: Configure Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Commit changes
+        run: |
+          git add -A
+          git commit -m "Dados atualizados - $(date +'%Y-%m-%d %H:%M:%S')"
+
+      - name: Push changes
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          git push https://${GH_TOKEN}@github.com/${{ github.repository }}.git HEAD:main
