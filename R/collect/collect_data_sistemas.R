@@ -50,7 +50,9 @@ dados_coletados <- purrr::map_dfr(data_download, function(data) {
 
   # Ler e converter o JSON
   pagina <- httr::RETRY('GET', url2)
+  print(pagina$status_code)
   dados <- httr::content(pagina, 'text') |> fromJSON()
+  print(dados[["data"]][["sistemasData"]])
   
   # Extrair dados dos sistemas
     dados_sistemas <- data.frame(

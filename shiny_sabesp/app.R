@@ -20,7 +20,7 @@ loadbox <- \(content, width = 12, maxi = T, ...) {
 }
 
 ### Load:
-df <- read_csv2("data/dados_mananciais_completo.csv") |>
+df <- read_csv2("https://raw.githubusercontent.com/BIT-Analytics/extract_sabesp/refs/heads/main/dados_mananciais_completo.csv") |>
   filter(Sistema %in% c("SIM", "Cantareira", "Alto Tietê", "Guarapiranga")) |>
   arrange(Sistema, data)
 upd <- df |> 

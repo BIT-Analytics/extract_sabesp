@@ -5,6 +5,6 @@ account: aguaesaneamento
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 15939988
-bundleId: 11123960
+bundleId: 11140431
 url: https://aguaesaneamento.shinyapps.io/shiny_sabesp/
 version: 1
